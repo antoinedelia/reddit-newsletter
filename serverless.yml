@@ -1,0 +1,35 @@
+service: reddit-newsletter
+
+provider:
+  name: aws
+  stage: prod
+  runtime: python3.8
+  region: eu-west-1
+  timeout: 60
+  iamRoleStatements: 
+    - Effect: 'Allow'
+      Action: 'logs:*'
+      Resource: '*'
+    - Effect: 'Allow'
+      Action: 'ses:SendEmail'
+      Resource: '*'
+
+package:
+  excludeDevDependencies: false
+  exclude:
+    - node_modules/**
+    - serverless_deployment/**
+    - assets/**
+
+functions:
+  main:
+    handler: src/reddit_weekly.lambda_handler
+    events:
+      - schedule: cron(0 10 ? * MON *)
+    environment:
+      SENDER_MAIL: antoine.delia@gmail.com
+      DESTINATION_MAIL: antoine.delia@gmail.com
+      POST_LIMIT: 10
+
+plugins:
+  - serverless-python-requirements
