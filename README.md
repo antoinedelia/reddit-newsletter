@@ -2,11 +2,16 @@
 
 Simple Lambda that send you a mail of the weekly top posts from Reddit every week.
 
+- [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
+- [Deployment](#deployment)
+- [Troubleshooting](#troubleshooting)
+
 ## Prerequisites
 
 You should have serverless and pip installed on your computer.
 
-Also, be sure that the email address used to send the mail is verified in AWS SES. 
+Also, be sure that the email address used to send the mail is verified in AWS SES. The mails for the recipients also have to be verified if you are in AWS SES sandbox (see [Troubleshooting](#troubleshooting))
 
 ## Configuration
 
@@ -26,3 +31,9 @@ $ sls plugin install -n serverless-python-requirements
 
 $ sls deploy
 ```
+
+## Troubleshooting
+
+You might not be able to send mails if your recipient is not verified in AWS SES. This is because you are still in the AWS SES sandbox, and AWS is preventing you from sending mails to unknown addresses.
+
+To get out of the AWS SES sandbox, please refer to the following documentation: https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html
