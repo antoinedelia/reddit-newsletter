@@ -12,7 +12,7 @@ from botocore.exceptions import ClientError
 logger = logging.getLogger()
 
 
-def return_response(status_code: int, message: str):
+def format_response(status_code: int, message: str):
     if status_code >= 400:
         logger.error(message)
     else:
@@ -53,7 +53,7 @@ POST_LIMIT = os.getenv('POST_LIMIT', 10)
 
 def lambda_handler(event, context):
     if not sender_mail or not recipients_mails:
-        return return_response(400, 'The sender or destination mail is not set.')
+        return format_response(400, 'The sender or destination mail is not set.')
     mail_content = ''
     for subreddit in default_subreddits:
         subreddit_url = reddit_api_url.format(subreddit=subreddit, limit=POST_LIMIT)
@@ -89,7 +89,7 @@ def lambda_handler(event, context):
             Source=sender_mail,
         )
     except ClientError as e:
-        return return_response(500, e.response['Error']['Message'])
+        return format_response(500, e.response['Error']['Message'])
     else:
         recipients = ', '.join(recipients_mails)
-        return return_response(200, f'Mail successfully sent to {recipients}!')
+        return format_response(200, f'Mail successfully sent to {recipients}!')
