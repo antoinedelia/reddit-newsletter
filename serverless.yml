@@ -27,8 +27,9 @@ functions:
     events:
       - schedule: cron(0 10 ? * MON *)
     environment:
+      SUBREDDITS: Android,anime,EDM,france,Games,movies,NintendoSwitch,television,videos
       SENDER_MAIL: antoine.delia@gmail.com
-      DESTINATION_MAIL: antoine.delia@gmail.com
+      RECIPIENTS_MAILS: antoine.delia@gmail.com
       POST_LIMIT: 10
 
 plugins:

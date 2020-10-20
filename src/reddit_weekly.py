@@ -31,7 +31,7 @@ def return_response(status_code: int, message: str):
 ###
 
 sender_mail = os.getenv('SENDER_MAIL')
-destination_mail = os.getenv('DESTINATION_MAIL')
+recipients_mails = os.getenv('RECIPIENTS_MAILS').split(',')
 mail_object = 'Reddit top posts - Week #{week_number}'
 CHARSET = "UTF-8"
 ses_client = boto3.client('ses')
@@ -42,25 +42,20 @@ ses_client = boto3.client('ses')
 ###
 
 reddit_api_url = 'https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=week&limit={limit}'
-list_subreddits = [
-    'Android',
-    'anime',
-    'EDM',
-    'france',
-    'Games',
-    'movies',
-    'NintendoSwitch',
-    'television',
+default_subreddits = [
+    'pics',
     'videos'
 ]
+if 'SUBREDDITS' in os.environ:
+    default_subreddits = os.getenv('SUBREDDITS').split(',')
 POST_LIMIT = os.getenv('POST_LIMIT', 10)
 
 
 def lambda_handler(event, context):
-    if not sender_mail or not destination_mail:
+    if not sender_mail or not recipients_mails:
         return return_response(400, 'The sender or destination mail is not set.')
     mail_content = ''
-    for subreddit in list_subreddits:
+    for subreddit in default_subreddits:
         subreddit_url = reddit_api_url.format(subreddit=subreddit, limit=POST_LIMIT)
         result = requests.get(subreddit_url, headers={'User-agent': 'your bot 0.1'}).json()
         posts_json = result['data']['children']
@@ -77,9 +72,7 @@ def lambda_handler(event, context):
         # Provide the contents of the email.
         ses_client.send_email(
             Destination={
-                'ToAddresses': [
-                    destination_mail,
-                ],
+                'ToAddresses': recipients_mails,
             },
             Message={
                 'Body': {
@@ -93,9 +86,10 @@ def lambda_handler(event, context):
                     'Data': mail_object.format(week_number=current_week_number),
                 },
             },
-            Source=destination_mail,
+            Source=sender_mail,
         )
     except ClientError as e:
         return return_response(500, e.response['Error']['Message'])
     else:
-        return return_response(200, f'Mail successfully sent to {sender_mail}!')
+        recipients = ', '.join(recipients_mails)
+        return return_response(200, f'Mail successfully sent to {recipients}!')
