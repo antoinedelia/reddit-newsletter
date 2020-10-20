@@ -11,7 +11,8 @@ Simple Lambda that send you a mail of the weekly top posts from Reddit every wee
 
 You should have serverless and pip installed on your computer.
 
-Also, be sure that the email address used to send the mail is verified in AWS SES. The mails for the recipients also have to be verified if you are in AWS SES sandbox (see [Troubleshooting](#troubleshooting))
+Also, be sure that the email address used to send the mail is verified in AWS SES. 
+The mails for the recipients also have to be verified if you are in AWS SES sandbox (see [Troubleshooting](#troubleshooting)).
 
 ## Configuration
 
