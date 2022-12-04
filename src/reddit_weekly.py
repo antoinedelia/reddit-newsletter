@@ -18,11 +18,9 @@ def format_response(status_code: int, message: str):
     else:
         logger.info(message)
     return {
-        'statusCode': status_code,
-        'headers': {'Content-Type': 'application/json'},
-        'body': json.dumps({
-            "message": message
-        })
+        "statusCode": status_code,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"message": message}),
     }
 
 
@@ -30,40 +28,37 @@ def format_response(status_code: int, message: str):
 # SMTP Configuration
 ###
 
-sender_mail = os.getenv('SENDER_MAIL')
-recipients_mails = os.getenv('RECIPIENTS_MAILS').split(',')
-mail_object = 'Reddit top posts - Week #{week_number}'
+sender_mail = os.getenv("SENDER_MAIL")
+recipients_mails = os.getenv("RECIPIENTS_MAILS").split(",")
+mail_object = "Reddit top posts - Week #{week_number}"
 CHARSET = "UTF-8"
-ses_client = boto3.client('ses')
+ses_client = boto3.client("ses")
 
 
 ###
 # Reddit Configuration
 ###
 
-reddit_api_url = 'https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=week&limit={limit}'
-default_subreddits = [
-    'pics',
-    'videos'
-]
-if 'SUBREDDITS' in os.environ:
-    default_subreddits = os.getenv('SUBREDDITS').split(',')
-POST_LIMIT = os.getenv('POST_LIMIT', 10)
+reddit_api_url = "https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=week&limit={limit}"
+default_subreddits = ["pics", "videos"]
+if "SUBREDDITS" in os.environ:
+    default_subreddits = os.getenv("SUBREDDITS").split(",")
+POST_LIMIT = os.getenv("POST_LIMIT", 10)
 
 
 def lambda_handler(event, context):
     if not sender_mail or not recipients_mails:
-        return format_response(400, 'The sender or destination mail is not set.')
-    mail_content = ''
+        return format_response(400, "The sender or destination mail is not set.")
+    mail_content = ""
     for subreddit in default_subreddits:
         subreddit_url = reddit_api_url.format(subreddit=subreddit, limit=POST_LIMIT)
-        result = requests.get(subreddit_url, headers={'User-agent': 'your bot 0.1'}).json()
-        posts_json = result['data']['children']
+        result = requests.get(subreddit_url, headers={"User-agent": "your bot 0.1"}).json()
+        posts_json = result["data"]["children"]
         posts = [Post(post) for post in posts_json]
-        mail_content += f'/r/{subreddit}:<br>'
+        mail_content += f"/r/{subreddit}:<br>"
         for post in posts:
             mail_content += f'<a href="{post.url}">{post.title}</a><br>'
-        mail_content += '<br>'
+        mail_content += "<br>"
 
     current_week_number = datetime.date(datetime.today()).isocalendar()[1]
 
@@ -72,24 +67,24 @@ def lambda_handler(event, context):
         # Provide the contents of the email.
         ses_client.send_email(
             Destination={
-                'ToAddresses': recipients_mails,
+                "ToAddresses": recipients_mails,
             },
             Message={
-                'Body': {
-                    'Html': {
-                        'Charset': CHARSET,
-                        'Data': mail_content,
+                "Body": {
+                    "Html": {
+                        "Charset": CHARSET,
+                        "Data": mail_content,
                     },
                 },
-                'Subject': {
-                    'Charset': CHARSET,
-                    'Data': mail_object.format(week_number=current_week_number),
+                "Subject": {
+                    "Charset": CHARSET,
+                    "Data": mail_object.format(week_number=current_week_number),
                 },
             },
             Source=sender_mail,
         )
     except ClientError as e:
-        return format_response(500, e.response['Error']['Message'])
+        return format_response(500, e.response["Error"]["Message"])
     else:
-        recipients = ', '.join(recipients_mails)
-        return format_response(200, f'Mail successfully sent to {recipients}!')
+        recipients = ", ".join(recipients_mails)
+        return format_response(200, f"Mail successfully sent to {recipients}!")
