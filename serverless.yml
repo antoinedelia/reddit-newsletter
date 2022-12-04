@@ -3,31 +3,32 @@ service: reddit-newsletter
 provider:
   name: aws
   stage: prod
-  runtime: python3.8
+  runtime: python3.9
   region: eu-west-1
   timeout: 60
-  iamRoleStatements: 
-    - Effect: 'Allow'
-      Action: 'logs:*'
-      Resource: '*'
-    - Effect: 'Allow'
-      Action: 'ses:SendEmail'
-      Resource: '*'
+  iam:
+    role:
+      statements:
+      - Effect: 'Allow'
+        Action: 'logs:*'
+        Resource: '*'
+      - Effect: 'Allow'
+        Action: 'ses:SendEmail'
+        Resource: '*'
 
 package:
-  excludeDevDependencies: false
-  exclude:
-    - node_modules/**
-    - serverless_deployment/**
-    - assets/**
+  patterns:
+    - "!node_modules/**"
+    - "!serverless_deployment/**"
+    - "!assets/**"
 
 functions:
   main:
     handler: src/reddit_weekly.lambda_handler
     events:
-      - schedule: cron(0 10 ? * MON *)
+      - schedule: cron(0 10 ? * FRI *)
     environment:
-      SUBREDDITS: Android,anime,EDM,france,Games,movies,NintendoSwitch,television,videos
+      SUBREDDITS: aws,cscareerquestions,devops,Python,programming,tech,technology
       SENDER_MAIL: antoine.delia@gmail.com
       RECIPIENTS_MAILS: antoine.delia@gmail.com
       POST_LIMIT: 10
