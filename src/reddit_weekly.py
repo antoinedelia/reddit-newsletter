@@ -9,7 +9,14 @@ import logging
 import json
 from botocore.exceptions import ClientError
 
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+
 logger = logging.getLogger()
+log_level = logging.getLevelName(LOG_LEVEL)
+logger.setLevel(log_level)
+logger.handlers[0].setFormatter(logging.Formatter('[%(asctime)s][%(levelname)s] %(message)s\n'))
+logging.getLogger('boto3').setLevel(logging.ERROR)
+logging.getLogger('botocore').setLevel(logging.ERROR)
 
 
 def format_response(status_code: int, message: str):
@@ -52,8 +59,11 @@ def lambda_handler(event, context):
     mail_content = ""
     for subreddit in default_subreddits:
         subreddit_url = reddit_api_url.format(subreddit=subreddit, limit=POST_LIMIT)
-        result = requests.get(subreddit_url, headers={"User-agent": "your bot 0.1"}).json()
-        posts_json = result["data"]["children"]
+        result = requests.get(subreddit_url, headers={"User-agent": "your bot 0.1"})
+        if result.status_code != 200:
+            logger.warning(f"Subreddit {subreddit} sent a {result.status_code} HTTP code.")
+            continue
+        posts_json = result.json()["data"]["children"]
         posts = [Post(post) for post in posts_json]
         mail_content += f"/r/{subreddit}:<br>"
         for post in posts:
