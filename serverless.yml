@@ -31,6 +31,9 @@ functions:
       SUBREDDITS: aws,cscareerquestions,devops,Python,programming,tech,technology
       SENDER_MAIL: YOUR.MAIL@gmail.com
       RECIPIENTS_MAILS: YOUR.MAIL@gmail.com
+      USER_AGENT: YOUR_OWN_CUSTOM_UNIQUE_USER_AGENT
+      REDDIT_CLIENT_ID: YOUR_OWN_REDDIT_CLIENT_ID
+      REDDIT_CLIENT_SECRET: YOUR_OWN_REDDIT_CLIENT_SECRET
       POST_LIMIT: 10
 
 plugins:
