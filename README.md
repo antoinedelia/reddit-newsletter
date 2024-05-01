@@ -1,6 +1,6 @@
 # Reddit Newsletter
 
-Simple Lambda that send you a mail of the weekly top posts from Reddit every week.
+Simple Lambda that sends you an email of the weekly top posts from Reddit every week.
 
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
@@ -9,7 +9,7 @@ Simple Lambda that send you a mail of the weekly top posts from Reddit every wee
 
 ## Prerequisites
 
-You should have serverless and pip installed on your computer.
+You should have the [Serverless Framework](https://www.serverless.com/) and `pip` installed on your machine.
 
 Also, be sure that the email address used to send the mail is verified in AWS SES. 
 The mails for the recipients also have to be verified if you are in AWS SES sandbox (see [Troubleshooting](#troubleshooting)).
@@ -25,12 +25,10 @@ You can configure some parameters directly into the `serverless.yml` file:
 
 ## Deployment
 
-```console
-$ pip install -r requirements.txt
-
-$ sls plugin install -n serverless-python-requirements
-
-$ sls deploy
+```sh
+pip install -r requirements.txt
+serverless plugin install -n serverless-python-requirements
+serverless deploy
 ```
 
 ## Troubleshooting
